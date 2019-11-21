@@ -13,9 +13,9 @@
 - Une cellule vivante possédant deux ou trois voisines vivantes reste vivante. 
 - Sinon elle meurt.-->
 <?php 
-if(isset($_SESSION['world'])){
-   session_destroy();
-}
+//if(isset($_SESSION['world'])){
+//  session_destroy();
+//}
 session_start();
 ?>
 
@@ -28,13 +28,14 @@ Taille de la grille: <input type="text" name="size" value="30" size="1" maxlengt
 <input type="submit" value="next" name="next" id ="next">
 </form> 
 
-<!-- <button type="button" onclick="play()">Play!</button> -->
+<form method="post">
+<input type="submit" value="play" name="play" id ="play">
+</form> 
 
-<!-- <script>
-    function play(){
-        setInterval(function() {document.getElementById("next").click();}, 1000)
-        };
-</script> -->
+
+<form method="post">
+<input type="submit" value="stop" name="stop" id ="stop">
+</form> 
 
 <?php
 function randomMatrix($size){
@@ -69,10 +70,12 @@ if(isset($_POST['submit']))
         echo "</table>";
         $_SESSION['world']=$world;
         $_SESSION['size']=$size;
+        $_SESSION['frame']=0;
     }
 
 // On définit la notion de voisins, on les compte en s'assurant de rester dans les limites de la matrice.
-function voisins($world, $size){
+function voisins($world, $size, $tick){
+    echo "frame n°".$tick;
     echo "<table class='center'>";
     for ($x=0; $x <= $size; $x++) {
         echo "<tr>";
@@ -125,11 +128,27 @@ function voisins($world, $size){
 }
 echo "</table>";
 }
+
 // bouton next
 if(isset($_POST['next'])){
- voisins($_SESSION['world'], $_SESSION['size']);
+    $_SESSION['frame']++;
+	voisins($_SESSION['world'], $_SESSION['size'], $_SESSION['frame']);
+}
+//play
+function loop(){
+    while ($i<1000) {
+        // sleep(1);
+        $_SESSION['frame']++;
+        voisins($_SESSION['world'], $_SESSION['size'], $_SESSION['frame']);
+        $i++;
+}
 }
 
+
+//bouton play
+if(isset($_POST['play'])){
+    loop();
+}
 ?>
 
 </body>
