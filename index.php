@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link href="https://fonts.googleapis.com/css?family=Tomorrow&display=swap" rel="stylesheet"> 
     <link rel="stylesheet" href="style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <meta charset="UTF-8">
@@ -8,52 +9,74 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
 </head>
+
 <body>
-<!-- Rules:
-- Une cellule morte possédant exactement trois voisines vivantes devient vivante. 
-- Une cellule vivante possédant deux ou trois voisines vivantes reste vivante. 
-- Sinon elle meurt.-->
+
 <?php 
-//if(isset($_SESSION['world'])){
-//  session_destroy();
-//}
-session_start();
+session_start(); //On démarre une session afin de conserver certaines variables
 ?>
 
-<form method="post">
-Taille de la grille: <input type="text" name="size" value="30" size="1" maxlength="2"><br>
-<input type="submit" value="Générer un départ aléatoire" name="submit">
-</form> 
+<!-- bouton de génération de grille aléatoire -->
+<div  class="buttons">
+    <table>
+        <tr>
+            <form method="post">
+            Taille de la grille: <input type="text" name="size" value="30" size="1" maxlength="2"><br>
+        <tr>
+            <input type="submit" value="Générer un départ aléatoire" name="submit">
+        </tr>  
+            </form> 
+        </tr>
+        
+        <!-- bouton next -->
+        <tr>
+            <td>
+                <form method="post">
+                <input type="submit" value="next" name="next" id ="next">
+                </form> 
+            </td>
 
-<form method="post">
-<input type="submit" value="next" name="next" id ="next">
-</form> 
+            <!-- bouton play -->
+            <td>
+                <form method="post">
+                <input style="margin-left:11px;" type="submit" value="play" name="play" id ="play">
+                </form> 
+            </td>
 
-<form method="post">
-<input type="submit" value="play" name="play" id ="play">
-</form> 
+            <!-- bouton stop : skip 3 frames -->
+            <td>
+                <form method="post">
+                <input style="margin-left:11px;" type="submit" value="stop" name="stop" id ="stop">
+                </form> 
+            </td>
+        </tr>
+    </table>
+</div>
 
+<br><br><br><br><br><br><br><br><br><br> <!-- only God can judge me -->
 
-<form method="post">
-<input type="submit" value="stop" name="stop" id ="stop">
-</form> 
+<div class="rules">
+Any live cell with two or three neighbors survives.<br><br>
+Any dead cell with three live neighbors becomes a live cell.<br><br>
+All other live cells die in the next generation.
+</div>
 
 <?php
+// fonction permettant de retourner une matrice aléatoire
 function randomMatrix($size){
     global $world; //je sais que c'est pas recommandé mais fuck j'ai perdu une journée là dessus
-    $world=array();
-    for ($x = 0; $x <= $size; $x++){ 
-        for ($y = 0; $y <= $size; $y++) { 
-        $world[$x][$y]=rand(0, 1);
+    $world=array(); // On déclare une matrice vide
+    for ($x = 0; $x <= $size; $x++){  // L'imbrication de 2 boucles for permet de définir un quadrillage
+        for ($y = 0; $y <= $size; $y++) { // de taille size²
+        $world[$x][$y]=rand(0, 1); // On remplit chaque cellule de 0 ou 1 aléatoirement
         }
     }
     return $world;
 }
 
-//
-if(isset($_POST['submit']))
-{
-    $size = $_POST['size'];
+// Draw the random matrix
+if(isset($_POST['submit'])){//If you click on the button
+    $size = $_POST['size']; //Get the size 
     randomMatrix($size);
         echo "<table class='center'>";
         for ($x=0; $x<=$size; $x++){
@@ -76,8 +99,10 @@ if(isset($_POST['submit']))
 
 // On définit la notion de voisins, on les compte en s'assurant de rester dans les limites de la matrice.
 function voisins($world, $size, $tick){
-    echo "<div id='loopTable'>";
+    echo "<div class='loopTable'>";
+    echo "<div class='frame'>";
     echo "frame n°".$tick;
+    echo "</div>";
     echo "<table class='center'>";
     for ($x=0; $x <= $size; $x++) {
         echo "<tr>";
@@ -128,7 +153,8 @@ function voisins($world, $size, $tick){
         }
         echo "</tr>";
     }
-    echo "</table></div>";
+    echo "</table><br><br>";
+    echo "</div>";
 }
 
 // bouton next
@@ -144,7 +170,7 @@ function loop(){
     while($_SESSION['play']==1) {
         $_SESSION['frame']++;
         echo "<script type=\"text/javascript\"> 
-        $('div').empty();
+        $('.loopTable').empty();
         </script>";//Jquery c'est puissant
         voisins($_SESSION['world'], $_SESSION['size'], $_SESSION['frame']);
         ob_flush();// Envoie le tampon de sortie

@@ -1,16 +1,48 @@
-table.center{
-margin : auto;
+body{
+background: rgb(171, 197, 197);
+}
+
+.buttons{
+position : absolute;
+top:20px;
+left:20px;
+float: left;
+margin-left: 5px;
+}
+
+.rules{
+box-shadow: 5px 5px 5px 5px rgb(65, 65, 65);
+margin-left:15px;
+width: 220px;
+float : left;
+clear: left;
+text-align: center;
+font-family: 'Tomorrow', sans-serif;
+padding: 5px;
+}
+
+.center{
+position: absolute;
+top:20px;
+margin-left: 25%;
 border: 1px solid rgb(0, 0, 0);
 /* border-collapse: collapse; */
-
 }
+
 .alive {
     width: 10px;
     height: 10px;
     background: rgb(255, 255, 255);
   }
+
 .dead {
     width: 10px;
     height: 10px;
     background: rgb(0, 0, 0);
   }
+
+.frame{
+  position: absolute;
+  top:0px;
+  margin-left: 25%;
+}
