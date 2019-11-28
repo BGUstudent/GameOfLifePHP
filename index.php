@@ -12,48 +12,25 @@
 
 <body>
 
-<?php 
-session_start(); //On démarre une session afin de conserver certaines variables
-?>
-
-<!-- bouton de génération de grille aléatoire -->
+<!-- Random grid button -->
 <div  class="buttons">
-    <table>
-        <tr>
-            <form method="post">
-            Choose grid size : <input style="width:29px;"  type="text" name="size" value="30" size="1" maxlength="2"><br>
-        <tr>
-            <input type="submit" value="Generate a random grid " name="submit">
-        </tr>  
-            </form> 
-        </tr>
-        
-        <!-- bouton next -->
-        <tr>
-            <td>
-                <form method="post">
-                <input type="submit" value="next" name="next" id ="next">
-                </form> 
-            </td>
-
-            <!-- bouton play -->
-            <td>
-                <form method="post">
-                <input type="submit" value="play" name="play" id ="play">
-                </form> 
-            </td>
-
-            <!-- stop button : skip 3 frames -->
-            <td>
-                <form method="post">
-                <input type="submit" value="stop" name="stop" id ="stop">
-                </form> 
-            </td>
-        </tr>
-    </table>
+    <form method="post">
+        Choose grid size : <input style="width:29px;"  type="text" name="size" value="30" size="1" maxlength="2"><br>
+        <input type="submit" value="Generate a random grid " name="submit">
+    </form> 
+    <div class="commands">
+        <form method="post">
+        <!-- next button -->
+            <input type="submit" value="next" name="next" id ="next">
+        <!-- play bouton -->
+            <input type="submit" value="play" name="play" id ="play">
+        <!-- stop button : skip 3 frames -->
+            <input type="submit" value="stop" name="stop" id ="stop">
+        </form> 
+    </div>
 </div>
 
-<br><br><br><br><br><br><br><br> <!-- Only God can judge me -->
+<br><br><br><br><br><br><br><br><!-- Only God can judge me -->
 
 <div class="rules">
     White cells are living cells<br>
@@ -66,13 +43,15 @@ session_start(); //On démarre une session afin de conserver certaines variables
 </div>
 
 <?php
-// fonction permettant de retourner une matrice aléatoire
+session_start(); // We start a session in order to store some global variables
+
+// This function return a random matrix
 function randomMatrix($size){
-    global $world; //je sais que c'est pas recommandé mais fuck j'ai perdu une journée là dessus
+    global $world; // Apparement c'est pas recommandé mais fuck j'ai perdu une journée là dessus
     $world=array(); // Declare an empty matrix
-    for ($x = 0; $x <= $size; $x++){  // L'imbrication de 2 boucles for permet de définir un quadrillage
-        for ($y = 0; $y <= $size; $y++) { // de taille size²
-        $world[$x][$y]=rand(0, 1); // On remplit chaque cellule de 0 ou 1 aléatoirement
+    for ($x = 0; $x <= $size; $x++){  // We define a grid by nesting a for loop inside another
+        for ($y = 0; $y <= $size; $y++) { // being size²
+        $world[$x][$y]=rand(0, 1); // Fill every cell with random 0 or 1
         }
     }
     return $world;
@@ -82,14 +61,14 @@ function randomMatrix($size){
 if(isset($_POST['submit'])){ // If you click on the button
     $size = $_POST['size']; // Get the size 
     randomMatrix($size); // Call the function with size parameter
-        echo "<table class='center'>";//Draw table
+        echo "<table class='center'>"; // Draw table
         for ($x=0; $x<=$size; $x++){
             echo "<tr>";
             for ($y=0; $y<=$size; $y++){
-                if ($world[$x][$y] == 1){ // If cell==0, Draw live cell
+                if ($world[$x][$y] == 1){ // If cell==1, Draw live cell
                     echo "<td class='alive'></td>";
                 }
-                if ($world[$x][$y] == 0){ // If cell==1, Draw dead cell
+                if ($world[$x][$y] == 0){ // If cell==0, Draw dead cell
                     echo "<td class='dead'></td>";
                 }
             }
@@ -105,7 +84,7 @@ if(isset($_POST['submit'])){ // If you click on the button
 function voisins($world, $size, $tick){
     echo "<div class='loopTable'>";
     echo "<div class='frame'>";
-    echo "frame n°".$tick;//Just print the generation n°
+    echo "frame n°".$tick; //Print the generation number
     echo "</div>";
     echo "<table class='center'>";
     for ($x=0; $x <= $size; $x++) { // as usual
@@ -127,7 +106,7 @@ function voisins($world, $size, $tick){
             if ($x > 0 && $y > 0 && $world[$x-1][$y-1] == 1) { // Check if x-1 and y-1 exist, then if [x-1;y-1] neigbour is alive...
                 $aliveNeighbours[$x][$y]++;
             }
-            if ($x > 0 && $y < $size && $world[$x-1][$y+1] == 1) {
+            if ($x > 0 && $y < $size && $world[$x-1][$y+1] == 1) { //...
                 $aliveNeighbours[$x][$y]++;
             }
             if ($x < $size && $y > 0 && $world[$x+1][$y-1] == 1) {
@@ -136,7 +115,7 @@ function voisins($world, $size, $tick){
             if ($x < $size && $y < $size && $world[$x+1][$y+1] == 1) {
                 $aliveNeighbours[$x][$y]++;
             }
-            // Applying rules (I should have wrote another function)
+            // Applying rules (I should have written another function)
             if($world[$x][$y]==1 && $aliveNeighbours[$x][$y]>1 && $aliveNeighbours[$x][$y]<4){
                 $new_world[$x][$y]=1; // Any live cell with two or three neighbors survives
             }
@@ -177,14 +156,15 @@ if(isset($_POST['play'])){
 
 //Function play
 function loop(){
+
     while($_SESSION['play']==1) { // while playing :
         $_SESSION['frame']++; // Increase frame by 1 for each click
         echo "<script type=\"text/javascript\"> 
         $('.loopTable').empty(); 
         </script>"; // Jquery is powerful
         voisins($_SESSION['world'], $_SESSION['size'], $_SESSION['frame']); // Call voisins
-        ob_flush(); // Envoie le tampon de sortie
-        flush(); // Vide les tampons de sortie du système
+        ob_flush(); // Send the output buffer //buffer : information flow from server to client
+        flush(); // Empty the output buffer
         sleep(1); // fais dodo
     }
 }
@@ -194,7 +174,7 @@ if(isset($_POST['stop'])){
     $_SESSION['play']=0; // Set play to 0 to stop the loop
 }
 
-//Overwrite values in for-loop PHP
+//About overwriting values in for-loop PHP
 //https://stackoverflow.com/questions/34530435/overwrite-values-in-for-loop-php
 ?>
 </body>
